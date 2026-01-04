@@ -1,0 +1,23 @@
+[Unit]
+Description=Docker Healthcheck Exporter
+Wants=network-online.target docker.service
+After=network-online.target docker.service
+
+[Service]
+Type=simple
+User=healthcheck-exporter
+Group=healthcheck-exporter
+SupplementaryGroups=docker
+EnvironmentFile=-/etc/docker-healthcheck-exporter.env
+ExecStart=/usr/bin/docker-healthcheck-exporter
+Restart=on-failure
+RestartSec=2
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/docker-healthcheck-exporter
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,71 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install build deps
+        run: |
+          python -m pip install -U pip
+          pip install poetry==1.8.3
+          poetry --version
+
+      - name: Install project deps
+        run: |
+          poetry install --no-interaction
+
+      - name: Install packaging tools
+        run: |
+          poetry run pip install pyinstaller==6.17.0
+
+      - name: Build binary (PyInstaller)
+        run: |
+          poetry run pyinstaller -F -n docker-healthcheck-exporter main.py --clean
+          ls -la dist/
+
+      - name: Install nfpm
+        run: |
+          set -e
+          curl -fsSL https://github.com/goreleaser/nfpm/releases/latest/download/nfpm_amd64.deb -o /tmp/nfpm.deb
+          sudo dpkg -i /tmp/nfpm.deb
+          nfpm --version
+
+      - name: Prepare scripts permissions
+        run: |
+          chmod +x packaging/deb/postinstall.sh packaging/deb/preremove.sh
+
+      - name: Set version in nfpm.yaml from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          sed -i "s/^version: \".*\"/version: \"$VERSION\"/" packaging/nfpm.yaml
+          cat packaging/nfpm.yaml | head -n 30
+
+      - name: Build deb
+        run: |
+          nfpm package -p deb -f packaging/nfpm.yaml
+          ls -la *.deb
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            *.deb
