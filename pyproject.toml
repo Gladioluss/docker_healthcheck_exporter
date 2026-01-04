@@ -1,0 +1,25 @@
+[project]
+name = "docker-healthcheck-exporter"
+version = "0.0.1"
+description = ""
+authors = [
+    {name = "Gladioluss",email = "emurashin@gmail.com"}
+]
+license = {text = "MIT"}
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi (>=0.128.0,<0.129.0)",
+    "uvicorn (>=0.40.0,<0.41.0)",
+    "aiodocker (>=0.25.0,<0.26.0)"
+]
+
+[tool.poetry]
+packages = [{ include = "healthcheck_exporter" }]
+
+[project.scripts]
+docker-healthcheck-exporter = "healthcheck_exporter.__main__:main"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

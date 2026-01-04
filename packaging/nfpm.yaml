@@ -1,0 +1,21 @@
+name: docker-healthcheck-exporter
+arch: amd64
+platform: linux
+version: "0.0.1"
+section: utils
+priority: optional
+maintainer: "Your Name <you@example.com>"
+description: "Prometheus exporter for Docker container healthchecks"
+contents:
+  - src: dist/docker-healthcheck-exporter
+    dst: /usr/bin/docker-healthcheck-exporter
+    file_info:
+      mode: 0755
+  - src: packaging/systemd/docker-healthcheck-exporter.service
+    dst: /lib/systemd/system/docker-healthcheck-exporter.service
+  - src: packaging/docker-healthcheck-exporter.env
+    dst: /etc/docker-healthcheck-exporter.env
+    type: config
+scripts:
+  postinstall: packaging/deb/postinstall.sh
+  preremove: packaging/deb/preremove.sh
