@@ -37,7 +37,7 @@ jobs:
 
       - name: Build binary (PyInstaller)
         run: |
-          poetry run pyinstaller -F -n docker_healthcheck_exporter main.py --clean
+          poetry run pyinstaller -F -n docker-healthcheck-exporter main.py --clean
           ls -la dist/
 
       - name: Install nfpm

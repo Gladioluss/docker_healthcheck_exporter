@@ -7,9 +7,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 
-from healthcheck_exporter.collector import DockerCollector, ContainerStatus
-from healthcheck_exporter.config import load_settings
-from healthcheck_exporter.metrics import render_metrics
+from docker_healthcheck_exporter.collector import DockerCollector, ContainerStatus
+from docker_healthcheck_exporter.config import load_settings
+from docker_healthcheck_exporter.metrics import render_metrics
 
 
 class ExporterState:

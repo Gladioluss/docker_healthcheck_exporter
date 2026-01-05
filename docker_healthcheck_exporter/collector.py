@@ -97,7 +97,6 @@ class DockerCollector:
             running = bool(state.get("Running", False))
             health = (state.get("Health", {}) or {}).get("Status")
 
-            # If exited cleanly with code 0 - often "one-shot" containers, skip
             if status == "exited" and exit_code == 0:
                 return None
 
