@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Mapping
 
-from healthcheck_exporter.collector import ContainerStatus
+from docker_healthcheck_exporter.collector import ContainerStatus
 
 
 def _esc(v: str) -> str:

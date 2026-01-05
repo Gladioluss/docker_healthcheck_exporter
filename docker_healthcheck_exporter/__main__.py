@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import uvicorn
 
-from healthcheck_exporter.app import app
-from healthcheck_exporter.config import load_settings
+from docker_healthcheck_exporter.app import app
+from docker_healthcheck_exporter.config import load_settings
 
 
 def main() -> None:

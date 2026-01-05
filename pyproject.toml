@@ -1,6 +1,6 @@
 [project]
-name = "docker_healthcheck_exporter"
-version = "0.0.3"
+name = "docker-healthcheck-exporter"
+version = "0.0.4"
 description = ""
 authors = [
     {name = "Gladioluss",email = "emurashin@gmail.com"}
@@ -15,13 +15,13 @@ dependencies = [
 ]
 
 [tool.poetry]
-name = "docker_healthcheck_exporter"
-version = "0.0.3"
+name = "docker-healthcheck-exporter"
+version = "0.0.4"
 description = "Prometheus exporter for Docker container healthchecks"
 authors = ["Gladioluss <emurashin@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{ include = "healthcheck_exporter" }]
+packages = [{ include = "docker_healthcheck_exporter" }]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
@@ -30,10 +30,10 @@ uvicorn = ">=0.40.0,<0.41.0"
 aiodocker = ">=0.25.0,<0.26.0"
 
 [tool.poetry.scripts]
-docker-healthcheck-exporter = "healthcheck_exporter.__main__:main"
+docker-healthcheck-exporter = "docker_healthcheck_exporter.__main__:main"
 
 [project.scripts]
-docker-healthcheck-exporter = "healthcheck_exporter.__main__:main"
+docker-healthcheck-exporter = "docker_healthcheck_exporter.__main__:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
