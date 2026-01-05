@@ -8,8 +8,8 @@ Type=simple
 User=healthcheck-exporter
 Group=healthcheck-exporter
 SupplementaryGroups=docker
-EnvironmentFile=-/etc/docker-healthcheck-exporter.env
-ExecStart=/usr/bin/docker-healthcheck-exporter
+EnvironmentFile=-/etc/docker_healthcheck_exporter.env
+ExecStart=/usr/bin/docker_healthcheck_exporter
 Restart=on-failure
 RestartSec=2
 
@@ -18,8 +18,8 @@ PrivateTmp=true
 ProtectHome=true
 ProtectSystem=strict
 
-StateDirectory=docker-healthcheck-exporter
-RuntimeDirectory=docker-healthcheck-exporter
+StateDirectory=docker_healthcheck_exporter
+RuntimeDirectory=docker_healthcheck_exporter
 
 [Install]
 WantedBy=multi-user.target

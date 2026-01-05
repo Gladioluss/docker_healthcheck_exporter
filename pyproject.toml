@@ -1,6 +1,6 @@
 [project]
-name = "docker-healthcheck-exporter"
-version = "0.0.2"
+name = "docker_healthcheck_exporter"
+version = "0.0.3"
 description = ""
 authors = [
     {name = "Gladioluss",email = "emurashin@gmail.com"}
@@ -15,8 +15,8 @@ dependencies = [
 ]
 
 [tool.poetry]
-name = "docker-healthcheck-exporter"
-version = "0.0.2"
+name = "docker_healthcheck_exporter"
+version = "0.0.3"
 description = "Prometheus exporter for Docker container healthchecks"
 authors = ["Gladioluss <emurashin@gmail.com>"]
 license = "MIT"
