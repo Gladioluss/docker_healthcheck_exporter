@@ -13,5 +13,7 @@ fi
 
 usermod -aG docker healthcheck-exporter || true
 
+install -d -o healthcheck-exporter -g healthcheck-exporter /var/lib/docker-healthcheck-exporter
+
 systemctl daemon-reload || true
 systemctl enable --now docker-healthcheck-exporter.service || true

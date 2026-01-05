@@ -17,7 +17,9 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectHome=true
 ProtectSystem=strict
-ReadWritePaths=/var/lib/docker-healthcheck-exporter
+
+StateDirectory=docker-healthcheck-exporter
+RuntimeDirectory=docker-healthcheck-exporter
 
 [Install]
 WantedBy=multi-user.target
