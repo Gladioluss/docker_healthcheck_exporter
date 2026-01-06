@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  lint-test-and-build-image:
+  lint-test-and-docker-build:
     runs-on: ubuntu-22.04
 
     steps:
@@ -29,7 +29,6 @@ jobs:
         run: |
           poetry install --no-interaction
 
-      # --- placeholders that will auto-enable when tools appear in deps ---
       - name: Lint (ruff) - if available
         run: |
           if poetry run ruff --version >/dev/null 2>&1; then
@@ -46,19 +45,17 @@ jobs:
             echo "pytest is not installed yet - skipping"
           fi
 
-      # Basic sanity even before tests exist
       - name: Python compile sanity check
         run: |
           poetry run python -m compileall -q docker_healthcheck_exporter
 
-      # Docker build on PR (no push)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image (PR validation, no push)
+      - name: Docker build (PR validation, no push)
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -68,3 +65,5 @@ jobs:
           tags: docker-healthcheck-exporter:pr
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          provenance: false
+          sbom: false
