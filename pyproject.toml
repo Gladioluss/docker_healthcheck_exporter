@@ -29,11 +29,30 @@ fastapi = ">=0.128.0,<0.129.0"
 uvicorn = ">=0.40.0,<0.41.0"
 aiodocker = ">=0.25.0,<0.26.0"
 
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.8.0"
+
 [tool.poetry.scripts]
 docker-healthcheck-exporter = "docker_healthcheck_exporter.__main__:main"
 
 [project.scripts]
 docker-healthcheck-exporter = "docker_healthcheck_exporter.__main__:main"
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+extend-exclude = ["dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["docker_healthcheck_exporter"]
+
+[tool.ruff.format]
+quote-style = "double"
+line-ending = "lf"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

@@ -8,11 +8,11 @@ import aiodocker
 
 
 class ServiceStatus(IntEnum):
-    CRIT = -2        # not running / unreachable
-    FAIL = -1        # unknown/failed
-    UNHEALTHY = 0    # running but unhealthy
-    RUNNING = 1      # running without healthcheck
-    HEALTHY = 2      # healthy
+    CRIT = -2  # not running / unreachable
+    FAIL = -1  # unknown/failed
+    UNHEALTHY = 0  # running but unhealthy
+    RUNNING = 1  # running without healthcheck
+    HEALTHY = 2  # healthy
 
 
 @dataclass(frozen=True)

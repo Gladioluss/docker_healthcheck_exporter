@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Mapping
+from collections.abc import Mapping
 
 from docker_healthcheck_exporter.collector import ContainerStatus
 
@@ -19,23 +19,33 @@ def render_metrics(
 ) -> str:
     lines: list[str] = []
 
-    lines.append("# HELP docker_healthcheck_exporter_up Exporter is running and can talk to Docker (1/0).")
+    lines.append(
+        "# HELP docker_healthcheck_exporter_up Exporter is running and can talk to Docker (1/0)."
+    )
     lines.append("# TYPE docker_healthcheck_exporter_up gauge")
-    lines.append(f'docker_healthcheck_exporter_up{{instance="{_esc(instance_name)}"}} {exporter_up}')
+    lines.append(
+        f'docker_healthcheck_exporter_up{{instance="{_esc(instance_name)}"}} {exporter_up}'
+    )
 
-    lines.append("# HELP docker_healthcheck_exporter_refresh_errors_total Number of Docker refresh errors.")
+    lines.append(
+        "# HELP docker_healthcheck_exporter_refresh_errors_total Number of Docker refresh errors."
+    )
     lines.append("# TYPE docker_healthcheck_exporter_refresh_errors_total counter")
     lines.append(
         f'docker_healthcheck_exporter_refresh_errors_total{{instance="{_esc(instance_name)}"}} {refresh_errors_total}'
     )
 
-    lines.append("# HELP docker_healthcheck_exporter_refresh_duration_seconds Last refresh duration in seconds.")
+    lines.append(
+        "# HELP docker_healthcheck_exporter_refresh_duration_seconds Last refresh duration in seconds."
+    )
     lines.append("# TYPE docker_healthcheck_exporter_refresh_duration_seconds gauge")
     lines.append(
         f'docker_healthcheck_exporter_refresh_duration_seconds{{instance="{_esc(instance_name)}"}} {refresh_duration_seconds}'
     )
 
-    lines.append("# HELP docker_healthcheck_exporter_snapshot_age_seconds Age of the last successful snapshot in seconds.")
+    lines.append(
+        "# HELP docker_healthcheck_exporter_snapshot_age_seconds Age of the last successful snapshot in seconds."
+    )
     lines.append("# TYPE docker_healthcheck_exporter_snapshot_age_seconds gauge")
     lines.append(
         f'docker_healthcheck_exporter_snapshot_age_seconds{{instance="{_esc(instance_name)}"}} {snapshot_age_seconds}'
@@ -48,7 +58,7 @@ def render_metrics(
 
     for name, st in snapshot.items():
         lines.append(
-            'docker_container_health_status{'
+            "docker_container_health_status{"
             f'instance="{_esc(instance_name)}",'
             f'name="{_esc(name)}",'
             f'container_id="{_esc(st.container_id)}",'

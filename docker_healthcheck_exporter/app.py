@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 
-from docker_healthcheck_exporter.collector import DockerCollector, ContainerStatus
+from docker_healthcheck_exporter.collector import ContainerStatus, DockerCollector
 from docker_healthcheck_exporter.config import load_settings
 from docker_healthcheck_exporter.metrics import render_metrics
 
@@ -98,5 +98,4 @@ async def metrics():
 
 @app.get("/health", response_class=PlainTextResponse)
 async def health():
-    # health of exporter itself (not services)
-    return "ok\n"
+    return "{'status': 'ok'}"
