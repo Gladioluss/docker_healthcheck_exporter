@@ -12,7 +12,6 @@ help:
 	@echo "Available targets:"
 	@echo "  make build              Build local docker image"
 	@echo "  make run                Run container locally"
-	@echo "  make push               Build & push multi-arch image"
 	@echo "  make tag                Create git tag VERSION=x.y.z"
 	@echo "  make release             Tag + push + docker push"
 
@@ -32,17 +31,6 @@ run:
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
 		$(PROJECT_NAME):$(VERSION)
 
-.PHONY: push
-push:
-	docker buildx build \
-		--platform $(PLATFORMS) \
-		--build-arg VERSION=$(VERSION) \
-		--build-arg VCS_REF=$(COMMIT) \
-		--build-arg BUILD_DATE=$(DATE) \
-		-t $(IMAGE_NAME):$(VERSION) \
-		-t $(IMAGE_NAME):latest \
-		--push \
-		.
 
 .PHONY: tag
 tag:
