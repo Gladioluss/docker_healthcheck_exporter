@@ -89,8 +89,6 @@ curl -fsSL localhost:9102/metrics | head
 
 ## Install from GitHub Release (one-liner)
 
-Replace `<ORG>` and `<REPO>`:
-
 ```bash
 VERSION="x.y.z"
 ARCH="amd64"
@@ -98,6 +96,26 @@ ARCH="amd64"
 curl -fsSL -o /tmp/dhe.deb \
   "https://github.com/Gladioluss/docker_healthcheck_exporter/releases/download/v${VERSION}/docker-healthcheck-exporter_${VERSION}_${ARCH}.deb" \
   && sudo apt install -y /tmp/dhe.deb
+```
+
+## Run with Docker
+
+> Image is published to GHCR: `ghcr.io/Gladioluss/docker_healthcheck_exporter`
+
+### Quick run
+
+```bash
+docker run -d --name docker-healthcheck-exporter \
+  -p 9102:9102 \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -e LISTEN=0.0.0.0:9102 \
+  ghcr.io/Gladioluss/docker_healthcheck_exporter:latest
+```
+
+## Verify:
+
+```bash
+curl -s localhost:9102/metrics | head
 ```
 
 ---
