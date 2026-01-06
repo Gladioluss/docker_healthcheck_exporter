@@ -1,0 +1,70 @@
+name: ci
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-test-and-build-image:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Poetry
+        run: |
+          python -m pip install -U pip
+          pip install poetry==1.8.3
+          poetry --version
+
+      - name: Install deps
+        run: |
+          poetry install --no-interaction
+
+      # --- placeholders that will auto-enable when tools appear in deps ---
+      - name: Lint (ruff) - if available
+        run: |
+          if poetry run ruff --version >/dev/null 2>&1; then
+            poetry run ruff check .
+          else
+            echo "ruff is not installed yet - skipping"
+          fi
+
+      - name: Tests (pytest) - if available
+        run: |
+          if poetry run pytest --version >/dev/null 2>&1; then
+            poetry run pytest -q
+          else
+            echo "pytest is not installed yet - skipping"
+          fi
+
+      # Basic sanity even before tests exist
+      - name: Python compile sanity check
+        run: |
+          poetry run python -m compileall -q docker_healthcheck_exporter
+
+      # Docker build on PR (no push)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image (PR validation, no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: false
+          tags: docker-healthcheck-exporter:pr
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

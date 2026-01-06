@@ -2,8 +2,8 @@ name: release
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: ["main"]
+    tags: ["v*"]
 
 permissions:
   contents: write
@@ -15,6 +15,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Compute version
+        id: ver
+        run: |
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            echo "version=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+            echo "is_tag=true" >> $GITHUB_OUTPUT
+          else
+            SHA7="$(echo "${GITHUB_SHA}" | cut -c1-7)"
+            echo "version=0.0.0+main.${GITHUB_RUN_NUMBER}.${SHA7}" >> $GITHUB_OUTPUT
+            echo "is_tag=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -38,6 +50,7 @@ jobs:
       - name: Build binary (PyInstaller)
         run: |
           poetry run pyinstaller -F -n docker-healthcheck-exporter main.py --clean
+          test -f dist/docker-healthcheck-exporter
           ls -la dist/
 
       - name: Install nfpm
@@ -52,10 +65,9 @@ jobs:
         run: |
           chmod +x packaging/deb/postinstall.sh packaging/deb/preremove.sh
 
-      - name: Set version from tag into nfpm.yaml
+      - name: Set version into nfpm.yaml
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          VERSION="${{ steps.ver.outputs.version }}"
           sed -i "s/^version: \".*\"/version: \"$VERSION\"/" packaging/nfpm.yaml
           grep -n "^version:" packaging/nfpm.yaml
 
@@ -64,8 +76,26 @@ jobs:
           nfpm package -p deb -f packaging/nfpm.yaml
           ls -la *.deb
 
-      - name: Create GitHub Release
+      - name: Checksums
+        run: |
+          sha256sum *.deb > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      # On merge to main: keep artifacts in the workflow run
+      - name: Upload artifacts (main builds)
+        if: steps.ver.outputs.is_tag == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-packages
+          path: |
+            *.deb
+            SHA256SUMS.txt
+
+      # On tags: publish GitHub Release
+      - name: Create GitHub Release (tag builds)
+        if: steps.ver.outputs.is_tag == 'true'
         uses: softprops/action-gh-release@v2
         with:
           files: |
             *.deb
+            SHA256SUMS.txt
