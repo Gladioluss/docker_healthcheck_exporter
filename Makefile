@@ -5,15 +5,32 @@ VERSION ?= $(shell git describe --tags --dirty --always 2>/dev/null || echo dev)
 COMMIT  := $(shell git rev-parse --short HEAD)
 DATE    := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
+DEB_OUT  := $(PROJECT_NAME)_$(VERSION)_amd64.deb
+
 PLATFORMS := linux/amd64,linux/arm64
 
 .PHONY: help
 help:
 	@echo "Available targets:"
+	@echo "  make deb-build          Build local binary via PyInstaller"
+	@echo "  make deb-run            Running local binary"
 	@echo "  make build              Build local docker image"
 	@echo "  make run                Run container locally"
 	@echo "  make tag                Create git tag VERSION=x.y.z"
-	@echo "  make release             Tag + push + docker push"
+	@echo "  make release            Tag + push + docker push"
+	@echo "  make lint               Run Ruff lint"
+	@echo "  make format             Run Ruff formatter"
+
+.PHONY: deb-build
+deb-build:
+	@echo ">>> Building standalone binary via PyInstaller"
+	poetry run pyinstaller -F -n docker-healthcheck-exporter main.py --clean
+	@ls -la dist/docker-healthcheck-exporter
+
+.PHONY: deb-run
+deb-run:
+	@echo ">>> Running local binary"
+	./dist/docker-healthcheck-exporter
 
 .PHONY: build
 build:
@@ -30,6 +47,14 @@ run:
 		-p 9102:9102 \
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
 		$(PROJECT_NAME):$(VERSION)
+
+.PHONY: lint
+lint:
+	poetry run ruff check .
+
+.PHONY: format
+format:
+	poetry run ruff format .
 
 
 .PHONY: tag
