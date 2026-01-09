@@ -40,7 +40,10 @@ jobs:
       - name: Tests (pytest) - if available
         run: |
           if poetry run pytest --version >/dev/null 2>&1; then
-            poetry run pytest -q
+            poetry run pytest -q \
+              --cov=docker_healthcheck_exporter \
+              --cov-report=term-missing \
+              --cov-fail-under=95
           else
             echo "pytest is not installed yet - skipping"
           fi

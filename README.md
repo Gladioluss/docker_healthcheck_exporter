@@ -4,13 +4,20 @@
 Debian/Ubuntu `.deb` • systemd service • low-overhead snapshot collector • production-ready
 
 [![Release](https://img.shields.io/github/v/release/Gladioluss/docker_healthcheck_exporter?sort=semver)](https://github.com/Gladioluss/docker_healthcheck_exporter/releases)
-[![CI](https://img.shields.io/github/actions/workflow/status/Gladioluss/docker_healthcheck_exporter/release.yml?branch=main)](https://github.com/Gladioluss/docker_healthcheck_exporter/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/Gladioluss/docker_healthcheck_exporter/ci.yml?branch=main)](https://github.com/Gladioluss/docker_healthcheck_exporter/actions)
+[![Release](https://img.shields.io/github/actions/workflow/status/Gladioluss/docker_healthcheck_exporter/release.yml?label=release)](https://github.com/Gladioluss/docker_healthcheck_exporter/actions)
 [![License](https://img.shields.io/github/license/Gladioluss/docker_healthcheck_exporter)](LICENSE)
 
 > Python package: `docker_healthcheck_exporter`  
 > CLI / deb / service: `docker-healthcheck-exporter`
 
 ---
+
+## Project status
+
+- Stable for production usage
+- Actively maintained
+- Backward compatibility: best effort for minor releases
 
 ## Why this exists
 
@@ -60,6 +67,7 @@ That means:
 - Access to the Docker socket:
   - default: `/var/run/docker.sock`
   - exporter user must be in the `docker` group (see troubleshooting)
+  - for remote Docker: set `DOCKER_HOST`, `DOCKER_TLS_VERIFY`, `DOCKER_CERT_PATH`
 
 ---
 
@@ -133,6 +141,8 @@ scrape_configs:
 ---
 
 ## Configuration
+
+The exporter is configured via environment variables.
 
 systemd loads environment config from:
 
@@ -294,6 +304,8 @@ sudo systemctl restart docker-healthcheck-exporter
 
 ## Development
 
+### Local setup
+
 Install dependencies:
 
 ```bash
@@ -312,6 +324,30 @@ Or:
 poetry run python -m docker_healthcheck_exporter
 ```
 
+### Linting and formatting
+
+```bash
+make lint
+make format
+```
+
+### Tests
+
+```bash
+make test
+```
+
+Integration tests use the local Docker Engine and will be skipped if Docker
+is not available or no suitable local image exists.
+
+### Coverage
+
+CI enforces test coverage. Locally you can run:
+
+```bash
+poetry run pytest --cov=docker_healthcheck_exporter --cov-report=term-missing
+```
+
 ---
 
 ## CI/CD (how releases are built)
@@ -327,30 +363,32 @@ GitHub Actions pipeline:
 
 - builds a Linux binary using **PyInstaller**
 - packages `.deb` via **nfpm**
+- builds/pushes Docker image to GHCR
 - uploads artifacts to **GitHub Release**
-
----
-
-## Roadmap
-
-- [ ] Grafana dashboard JSON
-- [ ] Example Prometheus alert rules
-- [ ] Regex / glob ignore patterns
-- [ ] Remote Docker hosts (`DOCKER_HOST`)
-- [ ] `--version` flag
-- [ ] Apt repository (GitHub Pages)
-- [ ] Docker image / GHCR publish
-- [ ] Kubernetes DaemonSet
 
 ---
 
 ## Contributing
 
-Open-source friendly ❤️
+See `CONTRIBUTING.md` for the workflow and expectations.
 
-- Issues: bug reports, feature requests, questions
-- PRs: small, focused changes are preferred
-- Please keep backward compatibility when possible
+---
+
+## Security
+
+See `SECURITY.md` for reporting vulnerabilities.
+
+---
+
+## Code of Conduct
+
+This project follows the Contributor Covenant. See `CODE_OF_CONDUCT.md`.
+
+---
+
+## Support
+
+For usage questions and support, see `SUPPORT.md`.
 
 ---
 

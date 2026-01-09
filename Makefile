@@ -20,6 +20,8 @@ help:
 	@echo "  make release            Tag + push + docker push"
 	@echo "  make lint               Run Ruff lint"
 	@echo "  make format             Run Ruff formatter"
+	@echo "  make test               Run pytest"
+	@echo "  make coverage           Run coverage info"
 
 .PHONY: deb-build
 deb-build:
@@ -56,6 +58,13 @@ lint:
 format:
 	poetry run ruff format .
 
+.PHONY: test
+test:
+	poetry run pytest
+
+.PHONY: coverage
+coverage:
+	poetry run pytest --cov=docker_healthcheck_exporter --cov-report=term-missing
 
 .PHONY: tag
 tag:
