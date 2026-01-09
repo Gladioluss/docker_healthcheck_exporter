@@ -182,6 +182,12 @@ sudo systemctl restart docker-healthcheck-exporter
 
 ---
 
+## Examples
+
+See `examples/README.md` for Docker Compose and Prometheus examples.
+
+---
+
 ## Metrics
 
 ### Container health metric

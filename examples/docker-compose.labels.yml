@@ -1,0 +1,31 @@
+services:
+  exporter:
+    image: ghcr.io/gladioluss/docker_healthcheck_exporter:latest
+    container_name: docker-healthcheck-exporter
+    ports:
+      - "9102:9102"
+    environment:
+      LISTEN: 0.0.0.0:9102
+      REFRESH_INTERVAL_SECONDS: "5"
+      INCLUDE_LABEL: "monitor=true"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  monitored-app:
+    image: alpine:3.20
+    container_name: monitored-app
+    command: ["sh", "-c", "while true; do sleep 30; done"]
+    labels:
+      monitor: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 5s
+      timeout: 2s
+      retries: 1
+
+  ignored-app:
+    image: alpine:3.20
+    container_name: ignored-app
+    command: ["sh", "-c", "while true; do sleep 30; done"]
+    labels:
+      monitor: "false"
