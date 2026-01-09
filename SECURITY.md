@@ -16,6 +16,7 @@ Please report security issues **privately**.
 
 - Email: emurashin@gmail.com
 - Include: a clear description, impact, repro steps, and any relevant logs or PoC
+- If possible, include affected version(s) and mitigations
 
 We will acknowledge receipt within 7 days and provide a remediation plan or
 timeline after confirming the issue.

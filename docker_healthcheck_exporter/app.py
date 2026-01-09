@@ -41,7 +41,7 @@ class ExporterState:
             self._task.cancel()
             try:
                 await self._task
-            except Exception:
+            except asyncio.CancelledError:
                 pass
         await self.collector.stop()
 
