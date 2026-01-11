@@ -74,11 +74,13 @@ test:
 coverage:
 	poetry run pytest --cov=docker_healthcheck_exporter --cov-report=term-missing
 
+# make tag VERSION=1.0.0
 .PHONY: tag
 tag:
 	@if [ -z "$(VERSION)" ]; then echo "VERSION is required"; exit 1; fi
 	git tag -a v$(VERSION) -m "Release v$(VERSION)"
 
+# make release VERSION=1.0.0
 .PHONY: release
 release: tag
 	git push origin v$(VERSION)
