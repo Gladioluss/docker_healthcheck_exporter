@@ -187,11 +187,14 @@ class DockerCollector:
             exit_code = state.get("ExitCode")
             running = bool(state.get("Running", False))
             health = (state.get("Health", {}) or {}).get("Status")
+            restarting = bool(state.get("Restarting", False))
 
             if status == "exited" and exit_code == 0:
                 return None
 
-            if not running:
+            if status == "restarting" or restarting:
+                st = ServiceStatus.FAIL
+            elif not running:
                 st = ServiceStatus.CRIT
             elif health is None:
                 st = ServiceStatus.RUNNING

@@ -80,6 +80,12 @@ async def test_collect_maps_statuses_and_filters() -> None:
             "State": {"Status": "running", "Running": True, "Health": {"Status": "starting"}},
         },
         {
+            "Id": "restarting1234",
+            "Name": "/restarting",
+            "Config": {"Image": "img", "Labels": {"monitor": "true"}},
+            "State": {"Status": "restarting", "Running": True},
+        },
+        {
             "Id": "oneshot1234567",
             "Name": "/oneshot",
             "Config": {"Image": "img", "Labels": {"monitor": "true"}},
@@ -112,6 +118,7 @@ async def test_collect_maps_statuses_and_filters() -> None:
         "nohealth",
         "notrunning",
         "unknownhealth",
+        "restarting",
     }
 
     assert snap["healthy"].status == int(ServiceStatus.HEALTHY)
@@ -119,6 +126,7 @@ async def test_collect_maps_statuses_and_filters() -> None:
     assert snap["nohealth"].status == int(ServiceStatus.RUNNING)
     assert snap["notrunning"].status == int(ServiceStatus.CRIT)
     assert snap["unknownhealth"].status == int(ServiceStatus.FAIL)
+    assert snap["restarting"].status == int(ServiceStatus.FAIL)
     assert isinstance(snap["healthy"], ContainerStatus)
 
 
