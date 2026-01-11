@@ -170,6 +170,9 @@ SERVICES_IGNORE_LIST=vmagent,health-exporter
 # Limits parallel Docker inspect calls
 MAX_CONCURRENCY=20
 
+# Optional: write metrics to a file for textfile collectors
+# METRICS_FILE=/var/lib/node_exporter/textfile_collector/docker_healthcheck_exporter.prom
+
 # Optional: override instance label value
 # INSTANCE_NAME=prod-node-01
 ```

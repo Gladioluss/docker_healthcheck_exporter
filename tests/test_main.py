@@ -6,7 +6,11 @@ import docker_healthcheck_exporter.__main__ as main_module
 
 
 def test_main_runs_uvicorn(monkeypatch) -> None:
-    settings = types.SimpleNamespace(listen_host="127.0.0.1", listen_port=1234)
+    settings = types.SimpleNamespace(
+        listen_host="127.0.0.1",
+        listen_port=1234,
+        metrics_file=None,
+    )
 
     called = {}
 
