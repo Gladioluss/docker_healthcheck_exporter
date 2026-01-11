@@ -30,6 +30,7 @@ def test_load_settings_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("SERVICES_IGNORE_LIST", "one,two")
     monkeypatch.setenv("INCLUDE_LABEL", "monitor=true")
     monkeypatch.setenv("MAX_CONCURRENCY", "3")
+    monkeypatch.setenv("METRICS_FILE", "/tmp/metrics.prom")
 
     settings = config.load_settings()
 
@@ -40,6 +41,7 @@ def test_load_settings_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     assert settings.services_ignore_list == {"vmagent", "health-exporter", "one", "two"}
     assert settings.include_label == "monitor=true"
     assert settings.max_concurrency == 3
+    assert settings.metrics_file == "/tmp/metrics.prom"
 
 
 def test_load_settings_invalid_listen(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -99,7 +99,9 @@ async def test_collect_maps_statuses_and_filters() -> None:
         },
     ]
 
-    collector = DockerCollector(ignore_list={"ignored"}, include_label="monitor=true", max_concurrency=2)
+    collector = DockerCollector(
+        ignore_list={"ignored"}, include_label="monitor=true", max_concurrency=2
+    )
     collector.docker = FakeDocker([FakeContainer(info) for info in infos])
 
     snap = await collector.collect()

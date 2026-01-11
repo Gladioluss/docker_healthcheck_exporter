@@ -16,6 +16,7 @@ help:
 	@echo "  make deb-run            Running local binary"
 	@echo "  make build              Build local docker image"
 	@echo "  make run                Run container locally"
+	@echo "  make run-local          Run exporter locally (poetry)"
 	@echo "  make tag                Create git tag VERSION=x.y.z"
 	@echo "  make release            Tag + push + docker push"
 	@echo "  make lint               Run Ruff lint"
@@ -45,10 +46,17 @@ build:
 
 .PHONY: run
 run:
+	mkdir -p ./examples/textfile
 	docker run --rm -it \
 		-p 9102:9102 \
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
-		$(PROJECT_NAME):$(VERSION)
+		-v "$(PWD)/examples/textfile:/examples/textfile" \
+		-e METRICS_FILE="/examples/textfile/docker_healthcheck_exporter.prom" \
+		$(PROJECT_NAME):$(VERSION) \
+
+.PHONY: run-local
+run-local:
+	poetry run docker-healthcheck-exporter
 
 .PHONY: lint
 lint:

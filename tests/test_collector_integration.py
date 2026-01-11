@@ -28,7 +28,10 @@ def _docker_available() -> bool:
 def _pick_local_image() -> str | None:
     candidates = ["busybox:latest", "alpine:latest", "ubuntu:latest"]
     for image in candidates:
-        if subprocess.run(["docker", "image", "inspect", image], capture_output=True).returncode == 0:
+        if (
+            subprocess.run(["docker", "image", "inspect", image], capture_output=True).returncode
+            == 0
+        ):
             return image
     return None
 

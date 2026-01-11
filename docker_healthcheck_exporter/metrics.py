@@ -6,6 +6,11 @@ from docker_healthcheck_exporter.collector import ContainerStatus
 
 
 def _esc(v: str) -> str:
+    """
+    Escapes a string for use in a Prometheus metric label.
+
+    Replaces \\ with \\\, \n with \\n, and " with \\".
+    """
     return v.replace("\\", "\\\\").replace("\n", "\\n").replace('"', '\\"')
 
 
@@ -17,6 +22,17 @@ def render_metrics(
     refresh_duration_seconds: float,
     snapshot_age_seconds: float,
 ) -> str:
+    """
+    Renders the Prometheus metrics for the exporter.
+
+    :param instance_name: the instance name for the exporter
+    :param snapshot: the snapshot of container health status
+    :param exporter_up: the exporter up status (1/0)
+    :param refresh_errors_total: the total number of refresh errors
+    :param refresh_duration_seconds: the duration of the last refresh in seconds
+    :param snapshot_age_seconds: the age of the last successful snapshot in seconds
+    :return: the rendered Prometheus metrics as a string
+    """
     lines: list[str] = []
 
     lines.append(

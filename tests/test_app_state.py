@@ -31,13 +31,16 @@ class DummyCollector:
         return self._snapshots.pop(0)
 
 
-def _make_state(monkeypatch: pytest.MonkeyPatch, collector: DummyCollector):
+def _make_state(
+    monkeypatch: pytest.MonkeyPatch, collector: DummyCollector, metrics_file: str | None = None
+):
     settings = SimpleNamespace(
         refresh_interval_seconds=0.01,
         services_ignore_list=set(),
         include_label=None,
         max_concurrency=1,
         instance_name="test",
+        metrics_file=metrics_file,
     )
     monkeypatch.setattr(app_module, "load_settings", lambda: settings)
     monkeypatch.setattr(app_module, "DockerCollector", lambda **kwargs: collector)
@@ -117,3 +120,32 @@ def test_metrics_text_age(monkeypatch: pytest.MonkeyPatch) -> None:
     state.snapshot = {}
     text = state.metrics_text()
     assert "docker_healthcheck_exporter_snapshot_age_seconds" in text
+
+
+@pytest.mark.asyncio
+async def test_metrics_file_write(tmp_path, monkeypatch: pytest.MonkeyPatch) -> None:
+    metrics_path = tmp_path / "metrics.prom"
+    snapshot = {
+        "svc": ContainerStatus(
+            name="svc",
+            status=1,
+            status_text="RUNNING",
+            container_id="abc",
+            image="img",
+            compose_project="p",
+            compose_service="s",
+        )
+    }
+    collector = DummyCollector([snapshot])
+    state = _make_state(monkeypatch, collector, metrics_file=str(metrics_path))
+
+    await state.start()
+    await asyncio.sleep(0.03)
+    try:
+        await state.stop()
+    except asyncio.CancelledError:
+        pass
+
+    assert metrics_path.exists()
+    content = metrics_path.read_text()
+    assert "docker_container_health_status" in content
