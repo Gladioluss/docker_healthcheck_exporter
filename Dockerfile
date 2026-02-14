@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 ARG VERSION=dev
 ARG VCS_REF=unknown
@@ -18,7 +18,7 @@ RUN pip install --upgrade pip && \
     pip install . --prefix=/install
 
 
-FROM python:3.12-slim AS runtime
+FROM python:3.14-slim AS runtime
 
 ARG VERSION=dev
 ARG VCS_REF=unknown
