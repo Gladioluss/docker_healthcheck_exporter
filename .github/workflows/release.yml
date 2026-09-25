@@ -103,7 +103,7 @@ jobs:
             type=raw,value=latest
 
       - name: Build & push Docker image (tag + latest)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
