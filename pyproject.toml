@@ -1,6 +1,6 @@
 [project]
 name = "docker-healthcheck-exporter"
-version = "1.0.2"
+dynamic = ["version"]
 description = ""
 authors = [
     {name = "Gladioluss",email = "emurashin@gmail.com"}

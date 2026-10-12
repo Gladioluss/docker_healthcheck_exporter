@@ -1,7 +1,7 @@
 PROJECT_NAME := docker-healthcheck-exporter
 IMAGE_NAME := ghcr.io/gladioluss/docker_healthcheck_exporter
 
-VERSION ?= $(shell git describe --tags --dirty --always 2>/dev/null || echo dev)
+override VERSION := $(shell poetry version --short)
 COMMIT  := $(shell git rev-parse --short HEAD)
 DATE    := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -17,8 +17,8 @@ help:
 	@echo "  make build              Build local docker image"
 	@echo "  make run                Run container locally"
 	@echo "  make run-local          Run exporter locally (poetry)"
-	@echo "  make tag                Create git tag VERSION=x.y.z"
-	@echo "  make release            Tag + push + docker push"
+	@echo "  make tag                Create git tag from pyproject.toml version"
+	@echo "  make release            Tag + push; GitHub Actions builds the release"
 	@echo "  make lint               Run Ruff lint"
 	@echo "  make format             Run Ruff formatter"
 	@echo "  make test               Run pytest"
@@ -27,7 +27,8 @@ help:
 .PHONY: deb-build
 deb-build:
 	@echo ">>> Building standalone binary via PyInstaller"
-	poetry run pyinstaller -F -n docker-healthcheck-exporter main.py --clean
+	poetry install --only-root
+	poetry run pyinstaller -F -n docker-healthcheck-exporter main.py --clean --copy-metadata docker-healthcheck-exporter
 	@ls -la dist/docker-healthcheck-exporter
 
 .PHONY: deb-run
@@ -74,14 +75,14 @@ test:
 coverage:
 	poetry run pytest --cov=docker_healthcheck_exporter --cov-report=term-missing
 
-# make tag VERSION=1.0.0
+# Version comes from pyproject.toml.
 .PHONY: tag
 tag:
-	@if [ -z "$(VERSION)" ]; then echo "VERSION is required"; exit 1; fi
+	@if [ -z "$(VERSION)" ]; then echo "Cannot read version from pyproject.toml"; exit 1; fi
+	@git diff --quiet HEAD -- pyproject.toml || { echo "Commit pyproject.toml before tagging a release"; exit 1; }
 	git tag -a v$(VERSION) -m "Release v$(VERSION)"
 
-# make release VERSION=1.0.0
+# make release
 .PHONY: release
 release: tag
 	git push origin v$(VERSION)
-	$(MAKE) push
