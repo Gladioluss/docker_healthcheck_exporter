@@ -361,12 +361,22 @@ poetry run pytest --cov=docker_healthcheck_exporter --cov-report=term-missing
 
 ## CI/CD (how releases are built)
 
-Releases are built automatically on tag push:
+The project version is defined only in `[tool.poetry].version` in `pyproject.toml`.
+Python package metadata, `.deb` packages, Docker release images, and Git tags use
+this version. Change it manually or use `poetry version patch` (also `minor` or
+`major`). After changing the version, refresh the local package metadata:
 
 ```bash
-git tag vX.Y.Z
-git push origin vX.Y.Z
+poetry version patch
+poetry install --only-root
+git add pyproject.toml
+git commit -m "chore: bump version"
+make release
 ```
+
+`make release` creates and pushes `v<version>`; GitHub Actions builds the release
+on that tag push. The workflow rejects tags that do not match `pyproject.toml`.
+`make build` also uses the project version automatically.
 
 GitHub Actions pipeline:
 

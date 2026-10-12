@@ -1,7 +1,7 @@
 name: docker-healthcheck-exporter
 arch: amd64
 platform: linux
-version: "1.0.0"
+version: "${VERSION}"
 section: utils
 priority: optional
 maintainer: "Gladioluss <emurashin@gmail.com>"
