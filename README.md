@@ -215,7 +215,7 @@ Value mapping:
 | 1     | running (no healthcheck configured) |
 | 0     | unhealthy |
 | -1    | failed / unknown |
-| -2    | critical (not running) |
+| -2    | critical (not running or paused) |
 
 ### Exporter self-metrics
 

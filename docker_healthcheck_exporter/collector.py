@@ -12,7 +12,7 @@ logger = get_logger(__name__)
 
 
 class ServiceStatus(IntEnum):
-    CRIT = -2  # not running / unreachable
+    CRIT = -2  # not running / paused / unreachable
     FAIL = -1  # unknown/failed
     UNHEALTHY = 0  # running but unhealthy
     RUNNING = 1  # running without healthcheck
@@ -194,7 +194,7 @@ class DockerCollector:
 
             if status == "restarting" or restarting:
                 st = ServiceStatus.FAIL
-            elif not running:
+            elif not running or status == "paused" or state.get("Paused", False):
                 st = ServiceStatus.CRIT
             elif health is None:
                 st = ServiceStatus.RUNNING

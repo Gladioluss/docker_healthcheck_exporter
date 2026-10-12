@@ -131,6 +131,27 @@ async def test_collect_maps_statuses_and_filters() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("health", ["healthy", "unhealthy", None])
+async def test_collect_paused_container_is_critical(health: str | None) -> None:
+    info = {
+        "Id": "paused1234567890",
+        "Name": "/paused",
+        "Config": {"Image": "img", "Labels": {}},
+        "State": {"Status": "paused", "Running": True, "Paused": True},
+    }
+    if health is not None:
+        info["State"]["Health"] = {"Status": health}
+
+    collector = DockerCollector(ignore_list=set(), include_label=None)
+    collector.docker = FakeDocker([FakeContainer(info)])
+
+    snap = await collector.collect()
+
+    assert snap["paused"].status == int(ServiceStatus.CRIT)
+    assert snap["paused"].status_text == "CRIT"
+
+
+@pytest.mark.asyncio
 async def test_collect_requires_start() -> None:
     collector = DockerCollector(ignore_list=set(), include_label=None, max_concurrency=1)
     with pytest.raises(RuntimeError):
