@@ -13,14 +13,20 @@ secure, and easy to operate in production.
 
 Prereqs:
 - Python 3.10+
-- Poetry
+- Poetry 2.5.1
 - Docker Engine (for integration tests)
 
 Install dependencies:
 
 ```bash
-poetry install
+pipx install poetry==2.5.1
+poetry check --lock
+poetry sync
 ```
+
+Keep `poetry.lock` in Git. Update it with `poetry lock` after changing dependency
+constraints, then commit both files. Use `poetry sync --with build` to also install
+the locked PyInstaller toolchain; Docker installs only the `main` group.
 
 Run locally:
 

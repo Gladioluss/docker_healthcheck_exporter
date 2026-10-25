@@ -6,6 +6,11 @@ on:
 permissions:
   contents: read
 
+env:
+  POETRY_VERSION: "2.5.1"
+  POETRY_VIRTUALENVS_IN_PROJECT: "true"
+  POETRY_INSTALLER_RE_RESOLVE: "false"
+
 jobs:
   lint-test-and-docker-build:
     runs-on: ubuntu-22.04
@@ -15,38 +20,36 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Set up Python
+        id: python
         uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: Install Poetry
         run: |
-          python -m pip install -U pip
-          pip install poetry==1.8.3
+          python -m pip install "poetry==$POETRY_VERSION"
           poetry --version
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}-${{ runner.arch }}-python-${{ steps.python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
 
       - name: Install deps
         run: |
-          poetry install --no-interaction
+          poetry check --lock
+          poetry sync --only main,dev --no-interaction
 
-      - name: Lint (ruff) - if available
-        run: |
-          if poetry run ruff --version >/dev/null 2>&1; then
-            poetry run ruff check .
-          else
-            echo "ruff is not installed yet - skipping"
-          fi
+      - name: Lint
+        run: poetry run ruff check .
 
-      - name: Tests (pytest) - if available
+      - name: Tests
         run: |
-          if poetry run pytest --version >/dev/null 2>&1; then
-            poetry run pytest -q \
-              --cov=docker_healthcheck_exporter \
-              --cov-report=term-missing \
-              --cov-fail-under=95
-          else
-            echo "pytest is not installed yet - skipping"
-          fi
+          poetry run pytest -q \
+            --cov=docker_healthcheck_exporter \
+            --cov-report=term-missing \
+            --cov-fail-under=95
 
       - name: Python compile sanity check
         run: |
@@ -65,8 +68,19 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64
           push: false
+          load: true
           tags: docker-healthcheck-exporter:pr
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=docker-ci
+          cache-to: type=gha,scope=docker-ci,mode=max
           provenance: false
           sbom: false
+
+      - name: Check runtime dependencies
+        run: |
+          docker run --rm --entrypoint python docker-healthcheck-exporter:pr -c '
+          import importlib.util
+          from docker_healthcheck_exporter import __version__
+          import fastapi, uvicorn, aiodocker
+          assert all(importlib.util.find_spec(name) is None for name in ("pytest", "ruff", "PyInstaller", "poetry"))
+          print("Runtime dependencies OK, project version:", __version__)
+          '

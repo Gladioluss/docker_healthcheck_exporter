@@ -1,8 +1,6 @@
 FROM python:3.12-slim AS builder
 
-ARG VERSION=dev
-ARG VCS_REF=unknown
-ARG BUILD_DATE=unknown
+ARG POETRY_VERSION=2.5.1
 
 WORKDIR /build
 
@@ -11,11 +9,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY pyproject.toml README.md ./
-COPY docker_healthcheck_exporter ./docker_healthcheck_exporter
+RUN python -m venv /opt/poetry && \
+    /opt/poetry/bin/pip install --no-cache-dir "poetry==${POETRY_VERSION}" && \
+    python -m venv /opt/venv
 
-RUN pip install --upgrade pip && \
-    pip install . --prefix=/install
+ENV VIRTUAL_ENV=/opt/venv \
+    PATH="/opt/venv/bin:/opt/poetry/bin:$PATH" \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_INSTALLER_RE_RESOLVE=false
+
+COPY pyproject.toml poetry.lock ./
+RUN poetry sync --only main --no-root
+
+COPY README.md LICENSE ./
+COPY docker_healthcheck_exporter ./docker_healthcheck_exporter
+RUN poetry check --lock && poetry build --format wheel && pip install --no-deps dist/*.whl
 
 
 FROM python:3.12-slim AS runtime
@@ -33,6 +41,7 @@ LABEL org.opencontainers.image.title="docker-healthcheck-exporter" \
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+    PATH="/opt/venv/bin:$PATH" \
     LISTEN=0.0.0.0:9102 \
     REFRESH_INTERVAL_SECONDS=5 \
     SERVICES_IGNORE_LIST=vmagent \
@@ -44,7 +53,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /install /usr/local
+COPY --from=builder /opt/venv /opt/venv
 
 EXPOSE 9102
 

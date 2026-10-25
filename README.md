@@ -318,11 +318,22 @@ sudo systemctl restart docker-healthcheck-exporter
 
 ### Local setup
 
-Install dependencies:
+Install Poetry 2.5.1, then install the locked dependencies:
 
 ```bash
-poetry install
+pipx install poetry==2.5.1
+poetry check --lock
+poetry sync
 ```
+
+Commit `poetry.lock` together with `pyproject.toml`. After changing dependency
+constraints, run `poetry lock` and test the result. Normal installs, CI, and
+Docker builds use the lock file without resolving new versions; Poetry selects
+the dependencies and wheels appropriate for the target Python and platform.
+
+The `dev` group contains test and lint tools. `make deb-build` also installs the
+optional `build` group with PyInstaller (Python 3.10–3.14). The runtime Docker
+image contains only the `main` dependencies and the exporter wheel.
 
 Run exporter:
 
@@ -364,7 +375,7 @@ poetry run pytest --cov=docker_healthcheck_exporter --cov-report=term-missing
 
 ## CI/CD (how releases are built)
 
-The project version is defined only in `[tool.poetry].version` in `pyproject.toml`.
+The project version is defined only in `[project].version` in `pyproject.toml`.
 Python package metadata, `.deb` packages, Docker release images, and Git tags use
 this version. Change it manually or use `poetry version patch` (also `minor` or
 `major`). After changing the version, refresh the local package metadata:
@@ -387,6 +398,11 @@ GitHub Actions pipeline:
 - packages `.deb` via **nfpm**
 - builds/pushes Docker image to GHCR
 - uploads artifacts to **GitHub Release**
+
+CI and release workflows use Poetry 2.5.1 and the same committed lock file.
+Dependency cache keys include the Poetry version, Python version, OS,
+architecture, and lock-file hash. Docker's dependency layer copies the lock file
+before installing; BuildKit also keys layers by the base image and target platform.
 
 ---
 
