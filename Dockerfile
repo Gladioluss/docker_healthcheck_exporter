@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.14-slim AS builder
 
 ARG POETRY_VERSION=2.5.1
 
@@ -26,7 +26,7 @@ COPY docker_healthcheck_exporter ./docker_healthcheck_exporter
 RUN poetry check --lock && poetry build --format wheel && pip install --no-deps dist/*.whl
 
 
-FROM python:3.12-slim AS runtime
+FROM python:3.14-slim AS runtime
 
 ARG VERSION=dev
 ARG VCS_REF=unknown
