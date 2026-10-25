@@ -27,7 +27,8 @@ help:
 .PHONY: deb-build
 deb-build:
 	@echo ">>> Building standalone binary via PyInstaller"
-	poetry install --only-root
+	poetry check --lock
+	poetry sync --with build --no-interaction
 	poetry run pyinstaller -F -n docker-healthcheck-exporter main.py --clean --copy-metadata docker-healthcheck-exporter
 	@ls -la dist/docker-healthcheck-exporter
 

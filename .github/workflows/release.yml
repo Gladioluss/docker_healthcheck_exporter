@@ -9,6 +9,11 @@ permissions:
   contents: write
   packages: write
 
+env:
+  POETRY_VERSION: "2.5.1"
+  POETRY_VIRTUALENVS_IN_PROJECT: "true"
+  POETRY_INSTALLER_RE_RESOLVE: "false"
+
 jobs:
   build-deb-and-docker:
     runs-on: ubuntu-22.04
@@ -22,15 +27,21 @@ jobs:
         run: echo "date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_OUTPUT
 
       - name: Set up Python
+        id: python
         uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
       - name: Install Poetry
         run: |
-          python -m pip install -U pip
-          pip install poetry==1.8.3
+          python -m pip install "poetry==$POETRY_VERSION"
           poetry --version
+
+      - name: Cache dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-${{ env.POETRY_VERSION }}-${{ runner.os }}-${{ runner.arch }}-python-${{ steps.python.outputs.python-version }}-${{ hashFiles('poetry.lock') }}
 
       - name: Read and validate project version
         id: ver
@@ -45,11 +56,8 @@ jobs:
 
       - name: Install deps
         run: |
-          poetry install --no-interaction
-
-      - name: Install PyInstaller
-        run: |
-          poetry run pip install pyinstaller==6.17.0
+          poetry check --lock
+          poetry sync --only main,build --no-interaction
 
       - name: Build binary (PyInstaller)
         run: |
@@ -114,8 +122,8 @@ jobs:
             VERSION=${{ steps.ver.outputs.version }}
             VCS_REF=${{ github.sha }}
             BUILD_DATE=${{ steps.builddate.outputs.date }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=docker-release
+          cache-to: type=gha,scope=docker-release,mode=max
           provenance: false
           sbom: false
 
