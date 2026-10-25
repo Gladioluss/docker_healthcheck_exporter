@@ -78,7 +78,7 @@ That means:
 Download the latest `.deb` from **Releases**, then install:
 
 ```bash
-sudo apt install -y ./docker-healthcheck-exporter_x.y.z_amd64.deb
+sudo apt install -y ./docker-healthcheck-exporter_1.0.2_amd64.deb
 ```
 
 ### Verify the service
