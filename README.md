@@ -98,7 +98,7 @@ curl -fsSL localhost:9102/metrics | head
 ## Install from GitHub Release (one-liner)
 
 ```bash
-VERSION="x.y.z"
+VERSION="1.0.2"
 ARCH="amd64"
 
 curl -fsSL -o /tmp/dhe.deb \
@@ -182,6 +182,9 @@ Apply changes:
 ```bash
 sudo systemctl restart docker-healthcheck-exporter
 ```
+
+The Debian package preserves local changes to this file during upgrades. If the
+package also changes its default config, keep the local version when prompted.
 
 ---
 
